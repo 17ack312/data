@@ -2,7 +2,7 @@ import os,sys,nmap
 import re ,datetime,json
 import style
 from alive_progress import alive_bar
-
+import datetime
 nm=nmap.PortScanner()
 #python=sys.argv[2]
 
@@ -10,16 +10,19 @@ result={}
 ports=[]
 
 def display(r):
+    r1=r.split('\t')[0]
+    r2=r.split('\t')[-1]
+
     if '[INFO]' in r:
-        print(style.on_cyan('\t'+str(r)))
+        print("\t",style.on_cyan(style.black(" "+str(r1)+" ")),"\t",style.cyan(str(r2)))
     if '[LOW]' in r:
-        print(style.on_green('\t'+str(r)))
+        print("\t",style.on_green(style.black(" "+str(r1)+" ")),"\t",style.green(str(r2)))
     if '[MED]' in r:
-        print(style.on_yellow('\t'+str(r)))
+        print("\t",style.on_yellow(style.black(" "+str(r1)+" ")),"\t",style.yellow(str(r2)))
     if '[HIGH]' in r :
-        print(style.on_light_red('\t'+str(r)))
+        print("\t",style.on_light_red(style.black(" "+str(r1)+" ")),"\t",style.light_red(str(r2)))
     if'[CRIT]' in r:
-        print(style.on_red('\t'+str(r)))
+        print("\t",style.on_red(style.black(" "+str(r1)+" ")),"\t",style.red(str(r2)))
 
 def _scan(ip, arg):
     res = nm.scan(hosts=ip, arguments=arg)['scan']
@@ -90,7 +93,7 @@ def process_data(data):
 
                         head='[HIGH] SSH V1 is SUPPORTED'
                         
-                        display('[PORT:'+str(port)+']\t'+head)
+                        display('PORT: '+str(port)+'\t'+head)
                         result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
                 
                 #2
@@ -109,7 +112,7 @@ def process_data(data):
 
                             head=' [MED] SSH WEAK ALGORITHM SUPPORTED'
                             
-                            display('[PORT:'+str(port)+']\t'+head)
+                            display('PORT: '+str(port)+'\t'+head)
                             result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
                         if re.search('encryption_algorithms:',x,re.IGNORECASE) and (re.search('cbc',x,re.IGNORECASE)):
@@ -125,7 +128,7 @@ def process_data(data):
 
                             head=' [LOW] SSH CBC MODE CIPHERS ENABLED'
                             
-                            display('[PORT:'+str(port)+']\t'+head)
+                            display('PORT: '+str(port)+'\t'+head)
                             result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
                         if re.search('mac_algorithms:',x,re.IGNORECASE) and (re.search('hmac',x,re.IGNORECASE)):
@@ -141,7 +144,7 @@ def process_data(data):
 
                             head=' [LOW] SSH WEAK MAC ALGORITHM DETECTED'
                             
-                            display('[PORT:'+str(port)+']\t'+head)
+                            display('PORT: '+str(port)+'\t'+head)
                             result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
                     
@@ -159,7 +162,7 @@ def process_data(data):
 
                             head=' [LOW] SSH WEAK MAC ALGORITHM DETECTED'
                             
-                            display('[PORT:'+str(port)+']\t'+head)
+                            display('PORT: '+str(port)+'\t'+head)
                             result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
                 #3
                 if str(j)=='ssh-hostkey':
@@ -195,7 +198,7 @@ def process_data(data):
                                 link=''
                                 head=' [MED] SSL CERTIFICATE EXPIRED'
                                 
-                                display('[PORT:'+str(port)+']\t'+head)
+                                display('PORT: '+str(port)+'\t'+head)
                                 result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
                             
@@ -218,7 +221,7 @@ def process_data(data):
 
                         head='[HIGH] SSL CERTIFICATE SIGNED WITH WEAK HASHING ALGORITHMS'
                         
-                        display('[PORT:'+str(port)+']\t'+head)
+                        display('PORT: '+str(port)+'\t'+head)
                         result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
                     
 
@@ -235,7 +238,7 @@ def process_data(data):
 
                         head='[HIGH] SSL CIPHERS VULNERABLE TO SWEET32 ATTACK'
                         
-                        display('[PORT:'+str(port)+']\t'+head)
+                        display('PORT: '+str(port)+'\t'+head)
                         result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
                     """
@@ -252,7 +255,7 @@ def process_data(data):
 
                         head=' [LOW] SSL/TLS DIFFIE-HELLMAN MODULUS'
                         
-                        display('[PORT:'+str(port)+']\t'+head)
+                        display('PORT: '+str(port)+'\t'+head)
                         result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)      
                     """
 
@@ -269,7 +272,7 @@ def process_data(data):
 
                         head=' [MED] SSL CIPHER CHAIN SUPPORTS RC4 CIPHERS WHICH IS DEPRECATED BY RFC 7465'
                         
-                        display('[PORT:'+str(port)+']\t'+head)
+                        display('PORT: '+str(port)+'\t'+head)
                         result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
                     
                 #4
@@ -288,7 +291,7 @@ def process_data(data):
 
                         head=' [MED] SSL CIPHERS VULNERABLE TO DROWN ATTACK'
                         
-                        display('[PORT:'+str(port)+']\t'+head)
+                        display('PORT: '+str(port)+'\t'+head)
                         result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
                     
                 #5
@@ -306,7 +309,7 @@ def process_data(data):
 
                         head='[HIGH] SSL/TLS MITM CSS INJECTION'
                         
-                        display('[PORT:'+str(port)+']\t'+head)
+                        display('PORT: '+str(port)+'\t'+head)
                         result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
                 #6
@@ -324,7 +327,7 @@ def process_data(data):
 
                         head=' [MED] TLS DHE_EXPORT Ciphers Downgrade MitM (Logjam)'.upper()
                         
-                        display('[PORT:'+str(port)+']\t'+head)
+                        display('PORT: '+str(port)+'\t'+head)
                         result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
                     if re.search('State: VULNERABLE', script,re.IGNORECASE) and re.search('Diffie-Hellman Key Exchange Insufficient Diffie-Hellman Group Strength',script,re.IGNORECASE):
@@ -340,7 +343,7 @@ def process_data(data):
 
                         head=' [MED] SSL/TLS: Diffie-Hellman Key Exchange Insufficient DH Group Strength Vulnerability'.upper()
                         
-                        display('[PORT:'+str(port)+']\t'+head)
+                        display('PORT: '+str(port)+'\t'+head)
                         result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
                     
@@ -359,7 +362,7 @@ def process_data(data):
 
                     head='[NONE] Diffie-Hellman Key Exchange Potentially Unsafe Group Parameters'.upper()
                     
-                    display('[PORT:'+str(port)+']\t'+head)
+                    display('PORT: '+str(port)+'\t'+head)
                     result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
                 #7
@@ -376,7 +379,7 @@ def process_data(data):
                         link='https://www.kb.cert.org/vuls/id/720951,https://tools.ietf.org/html/rfc2409#section-8,https://heartbleed.com/'
 
                         head='[HIGH] VULNERABLE TO OPENSSL HEARTBLEED'
-                        display('[PORT:'+str(port)+']\t'+head)
+                        display('PORT: '+str(port)+'\t'+head)
                         result[head] = set_data(v_name, score, strng, risk, desc, imp, sol, ref, link, port, script,name)
 
                 #8
@@ -393,7 +396,7 @@ def process_data(data):
                         link='https://www.imperialviolet.org/2014/10/14/poodle.html,https://www.openssl.org/~bodo/ssl-poodle.pdf.https://tools.ietf.org/html/draft-ietf-tls-downgrade-scsv-00'
 
                         head=' [MED] VULNERABLE TO SSL POODLE'
-                        display('[PORT:'+str(port)+']\t'+head)
+                        display('PORT: '+str(port)+'\t'+head)
                         result[head] = set_data(v_name, score, strng, risk, desc, imp, sol, ref, link, port, script,name)
                     
                 #9
@@ -409,7 +412,7 @@ def process_data(data):
                     link='https://www.exploit-db.com/exploits/41298/'
 
                     head='[HIGH] TLS TICKETBLEED FOUND'
-                    display('[PORT:'+str(port)+']\t'+head)
+                    display('PORT: '+str(port)+'\t'+head)
                     result[head] = set_data(v_name, score, strng, risk, desc, imp, sol, ref, link, port, script,name)
                 
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: S M T P :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -428,7 +431,7 @@ def process_data(data):
 
                         head='[INFO] SMTP SERVICE SUPPORT STARTTLS COMMAND'
                         
-                        display('[PORT:'+str(port)+']\t'+head)
+                        display('PORT: '+str(port)+'\t'+head)
                         result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
                 #2
@@ -445,7 +448,7 @@ def process_data(data):
 
                     head='[HIGH] MTA OPEN RELAYING ENABLED'
                     
-                    display('[PORT:'+str(port)+']\t'+head)
+                    display('PORT: '+str(port)+'\t'+head)
                     result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
                 #3
@@ -466,7 +469,7 @@ def process_data(data):
                     link='https://httpd.apache.org/security/vulnerabilities_22.html,https://beyondsecurity.com/scan-pentest-network-vulnerabilities-apache-mod-negotiation-multi-line-filename-upload-vulnerabilities.html#:~:text=Vulnerabilities%20in%20Apache%20mod_negotiation%20Multi-Line%20Filename%20Upload%20is,to%20resolve%20or%20prone%20to%20being%20overlooked%20entirely,https://bz.apache.org/bugzilla/show_bug.cgi?id=46837'
 
                     head=' [MED] APACHE MOD_NEGOTIATION IS ENABLED'
-                    display('[PORT:'+str(port)+']\t'+head)
+                    display('PORT: '+str(port)+'\t'+head)
                     result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
                 #2
@@ -482,7 +485,7 @@ def process_data(data):
                     link='https://support.microsoft.com/en-us,https://capec.mitre.org/data/definitions/37.html,https://www.tenable.com/plugins/nessus/33270,https://docs.microsoft.com/en-US/troubleshoot/developer/webapps/aspnet/development/disable-debugging-application'
 
                     head=' [MED] ASP.NET DEBUGGING ENABLED'
-                    display('[PORT:'+str(port)+']\t'+head)
+                    display('PORT: '+str(port)+'\t'+head)
                     result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
                 #3
@@ -519,7 +522,7 @@ def process_data(data):
                         link='http://www.nessus.org/u?1c015bda,https://www.invicti.com/web-vulnerability-scanner/vulnerabilities/session-cookie-not-marked-as-secure/'
 
                         head=' [MED] COOKIE NOT SECURE'
-                        display('[PORT:'+str(port)+']\t'+head)
+                        display('PORT: '+str(port)+'\t'+head)
                         result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
                     if re.search('httponly flag not set',script,re.IGNORECASE):
@@ -534,7 +537,7 @@ def process_data(data):
                         link=''
 
                         head=' [MED] COOKIE WITHOUT HTTP-ONLY'
-                        display('[PORT:'+str(port)+']\t'+head)
+                        display('PORT: '+str(port)+'\t'+head)
                         result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
                 #8
@@ -555,7 +558,7 @@ def process_data(data):
                     link='http://blog.jeremiahgrossman.com/2008/05/crossdomainxml-invites-cross-site.html,http://blogs.adobe.com/stateofsecurity/2007/07/crossdomain_policy_files_1.html'
 
                     head='[INFO] CROSS DOMAIN POLICY FILE FOUND'
-                    display('[PORT:'+str(port)+']\t'+head)
+                    display('PORT: '+str(port)+'\t'+head)
                     result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
                 #10
@@ -571,7 +574,7 @@ def process_data(data):
                     link='https://www.acunetix.com/websitesecurity/csrf-attacks/,https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html,https://www.cgisecurity.com/csrf-faq.html'
 
                     head=' [MED] POSSIBLE CSRF INJECTION'
-                    display('[PORT:'+str(port)+']\t'+head)
+                    display('PORT: '+str(port)+'\t'+head)
                     result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
                 #11
@@ -592,7 +595,7 @@ def process_data(data):
                     link='http://www.devttys0.com/2013/10/reverse-engineering-a-d-link-backdoor/,http://www.devttys0.com/2013/10/reverse-engineering-a-d-link-backdoor/,http://securitytracker.com/id/1029174'
 
                     head='[HIGH] D_LINK BACKDOOR FOUND'
-                    display('[PORT:'+str(port)+']\t'+head)
+                    display('PORT: '+str(port)+'\t'+head)
                     result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
                 #13
@@ -608,7 +611,7 @@ def process_data(data):
                     link='http://projects.webappsec.org/w/page/13246920/Cross%20Site%20Scripting,https://www.owasp.org/index.php/DOM_Based_XSS,https://www.owasp.org/index.php/DOM_based_XSS_Prevention_Cheat_Sheet'
 
                     head=' [MED] DOM BASED XSS'
-                    display('[PORT:'+str(port)+']\t'+head)
+                    display('PORT: '+str(port)+'\t'+head)
                     result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
                 #14
@@ -624,7 +627,7 @@ def process_data(data):
                     link='https://www.owasp.org/index.php/Unrestricted_File_Upload,https://www.acunetix.com/websitesecurity/upload-forms-threat/'
 
                     head='[CRIT] FILE UPLOAD VULNERABILTY'
-                    display('[PORT:'+str(port)+']\t'+head)
+                    display('PORT: '+str(port)+'\t'+head)
                     result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
                 #15
@@ -645,7 +648,7 @@ def process_data(data):
                     link='http://www.ducea.com/2006/08/11/apache-tips-tricks-deny-access-to-some-folders/'
 
                     head=' [MED] GIT REPO FOUND'
-                    display('[PORT:'+str(port)+']\t'+head)
+                    display('PORT: '+str(port)+'\t'+head)
                     result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
                 #17
@@ -671,7 +674,7 @@ def process_data(data):
                     link='http://routerpwn.com/#huawei,http://websec.ca/advisories/view/Huawei-HG520c-3.10.18.x-information-disclosure'
 
                     head=' [???] HUAWEI INFORMATION DISCLOSURE'
-                    display('[PORT:'+str(port)+']\t'+head)
+                    display('PORT: '+str(port)+'\t'+head)
                     result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
                 #20
@@ -687,7 +690,7 @@ def process_data(data):
                     link='https://soroush.secproject.com/blog/2012/06/microsoft-iis-tilde-character-vulnerabilityfeature-short-filefolder-name-disclosure/,https://soroush.secproject.com/blog/2014/08/iis-short-file-name-disclosure-is-back-is-your-server-vulnerable/,https://github.com/irsdl/IIS-ShortName-Scanner,https://support.microsoft.com/en-gb/help/121007/how-to-disable-8-3-file-name-creation-on-ntfs-partitions'
 
                     head=' [MED] MS IIS SHORTNAME DISCLOSURE'
-                    display('[PORT:'+str(port)+']\t'+head)
+                    display('PORT: '+str(port)+'\t'+head)
                     result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
                 #21
@@ -703,7 +706,7 @@ def process_data(data):
                     link='http://www.securiteam.com/windowsntfocus/5FP0B2K9FY.html'
 
                     head=' [LOW] WEBDAV ENABLED'
-                    display('[PORT:'+str(port)+']\t'+head)
+                    display('PORT: '+str(port)+'\t'+head)
                     result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
                 #22
@@ -719,7 +722,7 @@ def process_data(data):
                     link='https://www.invicti.com/blog/web-security/information-disclosure-issues-attacks/'
 
                     head='[INFO] INTERNAL IP DISCLOSURE'
-                    display('[PORT:'+str(port)+']\t'+head)
+                    display('PORT: '+str(port)+'\t'+head)
                     result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
                 #23
@@ -745,7 +748,7 @@ def process_data(data):
                     link='https://transparencyreport.google.com/safe-browsing/search,https://www.yandex.com/safety/,https://cloud.google.com/web-risk/docs/advisory/,https://www.virustotal.com/gui/'
 
                     head='[CRTIC] POSSIBLE MALWARE FOUND'
-                    display('[PORT:'+str(port)+']\t'+head)
+                    display('PORT: '+str(port)+'\t'+head)
                     result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
                 #26
@@ -762,7 +765,7 @@ def process_data(data):
                         link='https://www.owasp.org/index.php/Test_HTTP_Methods_(OTG-CONFIG-006),http://www.nessus.org/u?d9c03a9a,http://www.nessus.org/u?b019cbdb'
 
                         head='[INFO] OPTIONS METHOD ENABLED'
-                        display('[PORT:'+str(port)+']\t'+head)
+                        display('PORT: '+str(port)+'\t'+head)
                         result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
                     if re.search('TRACE',script,re.IGNORECASE):
@@ -777,7 +780,7 @@ def process_data(data):
                         link='https://www.cgisecurity.com/whitehat-mirror/WH-WhitePaper_XST_ebook.pdf,http://www.apacheweek.com/issues/03-01-24,https://download.oracle.com/sunalerts/1000718.1.html'
 
                         head=' [MED] TRACE METHOD ENABLED'
-                        display('[PORT:'+str(port)+']\t'+head)
+                        display('PORT: '+str(port)+'\t'+head)
                         result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
                 if str(j)=='http-method-tamper' and re.search('VULNERABLE:',script,re.IGNORECASE):
@@ -792,7 +795,7 @@ def process_data(data):
                     link='https://www.owasp.org/index.php/Testing_for_HTTP_Verb_Tampering_(OTG-INPVAL-003),https://www.imperva.com/learn/application-security/http-verb-tampering/#:~:text=HTTP%20Verb%20Tampering%20is%20an%20attack%20that%20exploits,access%20to%20restricted%20resources%20by%20other%20HTTP%20methods.'
 
                     head=' [MED] HTTP VERB TAMPERING'
-                    display('[PORT:'+str(port)+']\t'+head)
+                    display('PORT: '+str(port)+'\t'+head)
                     result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
                 if str(j)=='http-open-proxy' and re.search('Potentially',script,re.IGNORECASE):
@@ -807,7 +810,7 @@ def process_data(data):
                     link=''
 
                     head='[INFO] HTTP OPEN PROXY DETECTED'
-                    display('[PORT:'+str(port)+']\t'+head)
+                    display('PORT: '+str(port)+'\t'+head)
                     result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
                 if str(j)=='http-open-redirect' and (re.search('https://',script,re.IGNORECASE) or re.search('http://',script,re.IGNORECASE)):
@@ -822,7 +825,7 @@ def process_data(data):
                     link='https://www.acunetix.com/blog/web-security-zone/what-are-open-redirects/'
 
                     head=' [MED] OPEN REDIRECTION ENABLED'
-                    display('[PORT:'+str(port)+']\t'+head)
+                    display('PORT: '+str(port)+'\t'+head)
                     result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
                 if str(j)=='http-passwd' and re.search('Directory traversal found',script,re.IGNORECASE):
@@ -837,7 +840,7 @@ def process_data(data):
                     link='https://www.acunetix.com/websitesecurity/directory-traversal/'
 
                     head=' [MED] DIRECTORY TRAVERSAL'
-                    display('[PORT:'+str(port)+']\t'+head)
+                    display('PORT: '+str(port)+'\t'+head)
                     result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
                 if str(j)=='http-phpmyadmin-dir-traversal' and re.search('VULNERABLE',script,re.IGNORECASE):
@@ -852,7 +855,7 @@ def process_data(data):
                     link='http://securityreason.com/achievement_securityalert/24,http://www.phpmyadmin.net/home_page/security.php?issue=PMASA-2005-4'
 
                     head=' [MED] PHPMYADMIN LOCAL FILE INCLUSION'
-                    display('[PORT:'+str(port)+']\t'+head)
+                    display('PORT: '+str(port)+'\t'+head)
                     result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
                 if str(j)=='http-phpself-xss' and re.search('VULNERABLE',script,re.IGNORECASE):
@@ -867,7 +870,7 @@ def process_data(data):
                     link=''
 
                     head=' [MED] POSSIBLE PHP_SELF XSS'
-                    display('[PORT:'+str(port)+']\t'+head)
+                    display('PORT: '+str(port)+'\t'+head)
                     result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
                 if str(j)=='http-put' and re.search('successfully created',script,re.IGNORECASE):
@@ -882,7 +885,7 @@ def process_data(data):
                     link='https://tools.ietf.org/html/rfc7231#section-4.3.4,https://tools.ietf.org/html/rfc7231#section-4.3.5'
 
                     head=' [MED] HTTP PUT METHOD'
-                    display('[PORT:'+str(port)+']\t'+head)
+                    display('PORT: '+str(port)+'\t'+head)
                     result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
                 if str(j)=='http-rfi-spider' :#and re.search('',script):
@@ -901,7 +904,7 @@ def process_data(data):
                     link='http://www.robotstxt.org/orig.html'
 
                     head='[INFO] ROBOTS.TXT FOUND'
-                    display('[PORT:'+str(port)+']\t'+head)
+                    display('PORT: '+str(port)+'\t'+head)
                     result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
                 if str(j)=='http-sap-netweaver-leak' and re.search('VULNERABLE',script,re.IGNORECASE):
@@ -916,7 +919,7 @@ def process_data(data):
                     link='https://help.sap.com/saphelp_nw73ehp1/helpdata/en/4a/5c004250995a6ae10000000a42189b/frameset.htm'
 
                     head='[HIGH] ANONYMUS ACCESS TO SAP NETWEAVER PORTAL'
-                    display('[PORT:'+str(port)+']\t'+head)
+                    display('PORT: '+str(port)+'\t'+head)
                     result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
                 if str(j)=='http-shellshock' and re.search('VULNERABLE',script,re.IGNORECASE):
@@ -931,7 +934,7 @@ def process_data(data):
                     link='http://www.openwall.com/lists/oss-security/2014/09/24/10,https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-7169,http://seclists.org/oss-sec/2014/q3/685,http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-6271'
 
                     head='[CRIT] HTTP SHELLSHOCK VULNERABILTY'
-                    display('[PORT:'+str(port)+']\t'+head)
+                    display('PORT: '+str(port)+'\t'+head)
                     result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
                 if (str(j)=='http-slowloris-check' or str(j)=='http-slowloris') and re.search('VULNERABLE',script,re.IGNORECASE):
@@ -946,7 +949,7 @@ def process_data(data):
                     link='http://ha.ckers.org/slowloris/,http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-6750'
 
                     head='[HIGH] SLOWLORIS DOS ATTACK'
-                    display('[PORT:'+str(port)+']\t'+head)
+                    display('PORT: '+str(port)+'\t'+head)
                     result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
                 if str(j)=='http-sql-injection' and re.search('Possible sqli',script,re.IGNORECASE):
@@ -961,7 +964,7 @@ def process_data(data):
                     link='https://www.acunetix.com/websitesecurity/sql-injection/,https://www.acunetix.com/websitesecurity/sql-injection2/,https://www.acunetix.com/blog/articles/prevent-sql-injection-vulnerabilities-in-php-applications/,https://www.owasp.org/index.php/SQL_Injection,http://pentestmonkey.net/category/cheat-sheet/sql-injection'
 
                     head='[HIGH] SQL INJECTION VULNERABILTY'
-                    display('[PORT:'+str(port)+']\t'+head)
+                    display('PORT: '+str(port)+'\t'+head)
                     result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
                 if str(j)=='http-trace' and re.search('is enabled',script,re.IGNORECASE):
@@ -976,7 +979,7 @@ def process_data(data):
                     link='https://www.cgisecurity.com/whitehat-mirror/WH-WhitePaper_XST_ebook.pdf,http://www.apacheweek.com/issues/03-01-24,https://download.oracle.com/sunalerts/1000718.1.html'
 
                     head=' [MED] TRACE METHOD ENABLED'
-                    display('[PORT:'+str(port)+']\t'+head)
+                    display('PORT: '+str(port)+'\t'+head)
                     result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
                 if str(j)=='http-traceroute' and len(script)>10:
@@ -991,7 +994,7 @@ def process_data(data):
                     link=''
 
                     head='[INFO] TRACEROUTE INFORMATION'
-                    display('[PORT:'+str(port)+']\t'+head)
+                    display('PORT: '+str(port)+'\t'+head)
                     result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
                 if str(j)=='http-userdir-enum' and re.search('Potential Users',script,re.IGNORECASE):
@@ -1010,7 +1013,7 @@ def process_data(data):
                     link='http://www.securityfocus.com/bid/36842,http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-3733'
 
                     head=' [MED] VMWARE PATH TRAVERSAL'
-                    display('[PORT:'+str(port)+']\t'+head)
+                    display('PORT: '+str(port)+'\t'+head)
                     result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
                 if str(j)=='http-vuln-misfortune-cookie' and re.search('VULNERABLE',script,re.IGNORECASE):
@@ -1025,7 +1028,7 @@ def process_data(data):
                     link='http://mis.fortunecook.ie/,http://www.nessus.org/u?e6bf690f,http://www.nessus.org/u?22cba06d,http://www.kb.cert.org/vuls/id/561444'
 
                     head='[CRTIC] ROMPAGER - MISFORTUNE COOKIE'
-                    display('[PORT:'+str(port)+']\t'+head)
+                    display('PORT: '+str(port)+'\t'+head)
                     result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
                 if str(j)=='http-vuln-wnr1000-creds' and re.search('VULNERABLE',script,re.IGNORECASE):
@@ -1049,7 +1052,7 @@ def process_data(data):
                     link='http://projects.webappsec.org/w/page/13246920/Cross%20Site%20Scripting,https://www.owasp.org/index.php/XSS_%28Cross_Site_Scripting%29_Prevention_Cheat_Sheet'
 
                     head=' [MED] CROSS-SITE SCRIPTING'
-                    display('[PORT:'+str(port)+']\t'+head)
+                    display('PORT: '+str(port)+'\t'+head)
                     result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
                 if str(j)=='ip-https-discover':
@@ -1070,7 +1073,7 @@ def process_data(data):
                     link='https://dev.mysql.com/doc/refman/8.0/en/default-privileges.html'
 
                     head='[HIGH] MYSQL UNCREDENTIAL CHECK'
-                    display('[PORT:'+str(port)+']\t'+head)
+                    display('PORT: '+str(port)+'\t'+head)
                     result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
                 if str(j)=='mysql-empty-password' and re.search('has empty password',script,re.IGNORECASE):
@@ -1085,7 +1088,7 @@ def process_data(data):
                     link='https://dev.mysql.com/doc/refman/8.0/en/default-privileges.html'
 
                     head='[HIGH] MYSQL UNCREDENTIAL CHECK'
-                    display('[PORT:'+str(port)+']\t'+head)
+                    display('PORT: '+str(port)+'\t'+head)
                     result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
                 if str(j)=='ms-sql-xp-cmdshell' and re.search('output',script,re.IGNORECASE):
@@ -1099,7 +1102,7 @@ def process_data(data):
                     ref='CVE-2012-0175'
                     link='https://docs.microsoft.com/en-us/security-updates/SecurityBulletins/2012/ms12-048'
                     head='[HIGH] MS12-048:MS-SQL RCE'
-                    display('[PORT:'+str(port)+']\t'+head)
+                    display('PORT: '+str(port)+'\t'+head)
                     result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: S M B :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -1116,7 +1119,7 @@ def process_data(data):
                     link='http://www.nessus.org/u?df39b8b3,http://technet.microsoft.com/en-us/library/cc731957.aspx,http://www.nessus.org/u?74b80723,https://www.samba.org/samba/docs/current/man-html/smb.conf.5.html,http://www.nessus.org/u?a3cac4ea'
 
                     head=' [MED] SMB SIGN-IN NOT REQUIRED'
-                    display('[PORT:'+str(port)+']\t'+head)
+                    display('PORT: '+str(port)+'\t'+head)
                     result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
                 if str(j)=='smb2-vuln-uptime' and not re.search('vulnerable',script,re.IGNORECASE):
@@ -1131,7 +1134,7 @@ def process_data(data):
                     link='http://www.nessus.org/u?68fc8eff,http://www.nessus.org/u?321523eb,http://www.nessus.org/u?065561d0,http://www.nessus.org/u?d9f569cf,https://blogs.technet.microsoft.com/filecab/2016/09/16/stop-using-smb1/,http://www.nessus.org/u?b9d9ebf9,http://www.nessus.org/u?8dcab5e4,http://www.nessus.org/u?234f8ef8,http://www.nessus.org/u?4c7e0cf3,https://github.com/stamparm/EternalRocks/,http://www.nessus.org/u?59db5b5b'
 
                     head='[HIGH] MS17-010: SECURITY FOR MS WINDOWS SMB SERVER'
-                    display('[PORT:'+str(port)+']\t'+head)
+                    display('PORT: '+str(port)+'\t'+head)
                     result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
                 if str(j)=='smb-double-pulsar-backdoor' and not re.search('vulnerable',script,re.IGNORECASE):
@@ -1164,7 +1167,7 @@ def process_data(data):
                     link='https://blogs.technet.microsoft.com/filecab/2016/09/16/stop-using-smb1/,https://support.microsoft.com/en-us/help/2696547/how-to-detect-enable-and-disable-smbv1-smbv2-and-smbv3-in-windows-and,http://www.nessus.org/u?8dcab5e4,http://www.nessus.org/u?234f8ef8,http://www.nessus.org/u?4c7e0cf3'
 
                     head='[INFO] SMBv1 ENABLED'
-                    display('[PORT:'+str(port)+']\t'+head)
+                    display('PORT: '+str(port)+'\t'+head)
                     result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
                 if str(j)=='smb-protocols' and re.search('SMBv1',script,re.IGNORECASE):
@@ -1179,7 +1182,7 @@ def process_data(data):
                     link='http://www.nessus.org/u?c21268d4,http://www.nessus.org/u?b9253982,http://www.nessus.org/u?23802c83,http://www.nessus.org/u?8313bb60,http://www.nessus.org/u?7677c678,http://www.nessus.org/u?36da236c,http://www.nessus.org/u?0981b934,http://www.nessus.org/u?c88efefa,http://www.nessus.org/u?695bf5cc,http://www.nessus.org/u?459a1e8c,http://www.nessus.org/u?ea45bbc5,http://www.nessus.org/u?4195776a,http://www.nessus.org/u?fbf092cf,http://www.nessus.org/u?8c0cc566'
 
                     head='[HIGH] SMBv1 MULTIPLE VULNERABILITY'
-                    display('[PORT:'+str(port)+']\t'+head)
+                    display('PORT: '+str(port)+'\t'+head)
                     result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
                 if str(j)=='smb-vuln-conficker' and re.search('VULNERABLE',script,re.IGNORECASE):
@@ -1194,7 +1197,7 @@ def process_data(data):
                     link='http://net.cs.uni-bonn.de/wg/cs/applications/containing-conficker/,https://support.microsoft.com/en-us/help/962007/virus-alert-about-the-win32-conficker-worm,http://www.nessus.org/u?1f3900d3'
 
                     head='[CRIT] CONFICKER WORM DETECTED'
-                    display('[PORT:'+str(port)+']\t'+head)
+                    display('PORT: '+str(port)+'\t'+head)
                     result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
                 if str(j)=='smb-vuln-regsvc-dos' and re.search('VULNERABLE',script,re.IGNORECASE):
@@ -1209,7 +1212,7 @@ def process_data(data):
                     link='https://www.nessus.org/u?beda7c4d'
 
                     head='[HIGH] SMB DOS VULNERABILITY'
-                    display('[PORT:'+str(port)+']\t'+head)
+                    display('PORT: '+str(port)+'\t'+head)
                     result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
 
@@ -1225,7 +1228,7 @@ def process_data(data):
                     link='http://www.securityfocus.com/bid/105734,http://www.securitytracker.com/id/1041942'
 
                     head='[HIGH] SWEBEXSERVICE REMOTE CODE EXECUTION'
-                    display('[PORT:'+str(port)+']\t'+head)
+                    display('PORT: '+str(port)+'\t'+head)
                     result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
 
@@ -1243,7 +1246,7 @@ def process_data(data):
                     link='http://www.intelliadmin.com/index.php/2006/05/security-flaw-in-realvnc-411/,https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-2369'
 
                     head='[HIGH] RealVNC AUTH BYPASS'
-                    display('[PORT:'+str(port)+']\t'+head)
+                    display('PORT: '+str(port)+'\t'+head)
                     result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
                 if str(j)=='rdp-vuln-ms12-020' and re.search('VULNERABLE',script,re.IGNORECASE):
@@ -1259,7 +1262,7 @@ def process_data(data):
                         link='http://technet.microsoft.com/en-us/security/bulletin/ms12-020,http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-015'
 
                         head=' [MED] RDP DOS ATTACK (MS12-020)'
-                        display('[PORT:'+str(port)+']\t'+head)
+                        display('PORT: '+str(port)+'\t'+head)
                         result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
                   
                     if re.search('Remote Code Execution',script,re.IGNORECASE):
@@ -1274,7 +1277,7 @@ def process_data(data):
                         link='http://technet.microsoft.com/en-us/security/bulletin/ms12-020,http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-0002'
 
                         head=' [MED] RDP RCE ATTACK (MS12-020)'
-                        display('[PORT:'+str(port)+']\t'+head)
+                        display('PORT: '+str(port)+'\t'+head)
                         result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: N F S :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -1291,7 +1294,7 @@ def process_data(data):
                     link='https://support.datafabric.hpe.com/s/article/NFS-Security-Vulnerability-CVE-1999-0554?language=en_US'
 
                     head=' [HIGH] NFS MOUNTABLE'
-                    display('[PORT:'+str(port)+']\t'+head)
+                    display('PORT: '+str(port)+'\t'+head)
                     result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: F T P :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -1308,7 +1311,7 @@ def process_data(data):
                     link=''
 
                     head=' [MED] ANONYMOUS FTP LOGIN'
-                    display('[PORT:'+str(port)+']\t'+head)
+                    display('PORT: '+str(port)+'\t'+head)
                     result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
                 if str(j)=='ftp-bounce' and re.search('bounce',script,re.IGNORECASE):
@@ -1323,7 +1326,7 @@ def process_data(data):
                     link='http://www.security.org.sg/vuln/netfileftp746port.html'
 
                     head=' [MED] FTP BOUNCE ATTACK'
-                    display('[PORT:'+str(port)+']\t'+head)
+                    display('PORT: '+str(port)+'\t'+head)
                     result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
                 if str(j)=='ftp-libopie' and re.search('vulnerable',script,re.IGNORECASE):
@@ -1338,7 +1341,7 @@ def process_data(data):
                     link='http://www.nessus.org/u?8197ddf8'
 
                     head=' [MED] OPIE OFF_BY_ONE STACK-OVERFLOW'
-                    display('[PORT:'+str(port)+']\t'+head)
+                    display('PORT: '+str(port)+'\t'+head)
                     result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
                 if str(j)=='ftp-proftpd-backdoor' and re.search('backdoored',script,re.IGNORECASE):
@@ -1353,7 +1356,7 @@ def process_data(data):
                     link='http://www.nessus.org/u?8197ddf8'
 
                     head='[CRIT] FTP BACKDOOR DETECTION'
-                    display('[PORT:'+str(port)+']\t'+head)
+                    display('PORT: '+str(port)+'\t'+head)
                     result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
                 if str(j)=='ftp-vsftpd-backdoor' and re.search('vulnerable',script,re.IGNORECASE):
@@ -1368,7 +1371,7 @@ def process_data(data):
                     link='http://www.nessus.org/u?8197ddf8'
 
                     head='[CRIT] VSFTPD BACKDOOR DETECTION'
-                    display('[PORT:'+str(port)+']\t'+head)
+                    display('PORT: '+str(port)+'\t'+head)
                     result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
 
@@ -1385,7 +1388,7 @@ def process_data(data):
                     link='http://cs.unc.edu/~fabian/course_papers/cache_snooping.pdf'
 
                     head=' [MED] DNS CACHE SNOOPING'
-                    display('[PORT:'+str(port)+']\t'+head)
+                    display('PORT: '+str(port)+'\t'+head)
                     result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
                 if str(j)=='dns-check-zone' and re.search('pass',script,re.IGNORECASE):               
@@ -1400,7 +1403,7 @@ def process_data(data):
                     link='http://www.nessus.org/u?08f00b71'
 
                     head=' [MED] DNS ZONE TRANSFER'
-                    display('[PORT:'+str(port)+']\t'+head)
+                    display('PORT: '+str(port)+'\t'+head)
                     result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
                 if str(j)=='dns-recursion' and re.search('enabled',script,re.IGNORECASE):                
@@ -1415,7 +1418,7 @@ def process_data(data):
                     link='http://www.nessus.org/u?c4dcf24a'
 
                     head=' [MED] DNS RECURSION'
-                    display('[PORT:'+str(port)+']\t'+head)
+                    display('PORT: '+str(port)+'\t'+head)
                     result[head]=set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,name)
 
 
@@ -1431,136 +1434,145 @@ def ssh(host):
     #res=_scan(host,'-sV --script='+str(",".join(map(str,scripts)))+' --script-args="userdb=users.lst, passdb=pass.lst, ssh-brute.timeout=4s,ssh_hostkey=all, ssh-run.cmd=ls , ssh-run.username=admin, ssh-run.password=password,ssh.usernames={\'root\', \'user\'}, publickeys={\'./id_rsa1.pub\', \'./id_rsa2.pub\'},ssh.privatekeys={\'./id_rsa1\', \'./id_rsa2\'},ssh.user=\'root\'"')
     #return (filter_data(res))
     data=[]
-    with alive_bar(len(scripts),force_tty=True,title="Progress") as bar:
+    #with alive_bar(len(scripts),force_tty=True,title="Scanning in Progress") as bar:
+    with alive_bar(len(scripts),force_tty=True,title="Scan in Progress",bar="halloween") as bar:
         for s in scripts:
             res=filter_data(_scan(host,'-sV --script='+s+' --script-args="userdb=users.lst, passdb=pass.lst, ssh-brute.timeout=4s,ssh_hostkey=all, ssh-run.cmd=ls , ssh-run.username=admin, ssh-run.password=password,ssh.usernames={\'root\', \'user\'}, publickeys={\'./id_rsa1.pub\', \'./id_rsa2.pub\'},ssh.privatekeys={\'./id_rsa1\', \'./id_rsa2\'},ssh.user=\'root\'"'))
             if len(json.loads(res))>0:
                 data.append((res))
             bar()
-    return (data)
+    return json.dumps(data)
 
 def ssl(host):
     scripts=['ssl-enum-ciphers','ssl-ccs-injection.nse','ssl-cert-intaddr.nse','ssl-cert.nse','ssl-date.nse','ssl-dh-params.nse','ssl-known-key.nse','ssl-heartbleed.nse','ssl-poodle.nse','sslv2-drown.nse','sslv2.nse','tls-ticketbleed.nse']
     #res=_scan(host,'-sV --script='+str(",".join(map(str,scripts))))
     data=[]
-    with alive_bar(len(scripts),force_tty=True,title="Progress") as bar:
+    #with alive_bar(len(scripts),force_tty=True,title="Scanning in Progress") as bar:
+    with alive_bar(len(scripts),force_tty=True,title="Scan in Progress",bar="halloween") as bar:
         for s in scripts:
             res=filter_data(_scan(host,'-sV --script='+s))
             if len(json.loads(res))>0:
                 data.append((res))
             bar()
-    return (data)
+    return json.dumps(data)
 
 def smtp(host):
     scripts=['smtp-commands.nse','smtp-strangeport.nse','smtp-open-relay.nse']
     #res=_scan(host,'-sV --script='+str(",".join(map(str,scripts)))+' --script-args="smtp-open-relay.domain=sakurity.com,smtp-open-relay.ip=127.0.0.1"')
     #return (filter_data(res))
     data=[]
-    with alive_bar(len(scripts),force_tty=True,title="Progress") as bar:
+    #with alive_bar(len(scripts),force_tty=True,title="Scanning in Progress") as bar:
+    with alive_bar(len(scripts),force_tty=True,title="Scan in Progress",bar="halloween") as bar:
         for s in scripts:
             res=filter_data(_scan(host,'-sV --script='+s+' --script-args="smtp-open-relay.domain=sakurity.com,smtp-open-relay.ip=127.0.0.1"'))
             if len(json.loads(res))>0:
                 data.append((res))
             bar()
-    return (data)
+    return json.dumps(data)
 
 def http(host):
     scripts=['http-apache-negotiation.nse','http-avaya-ipoffice-users.nse','http-awstatstotals-exec.nse','http-brute.nse','http-comments-displayer.nse','http-config-backup.nse','http-cookie-flags','http-cors','http-cross-domain-policy.nse','http-csrf.nse','http-dombased-xss.nse','http-fileupload-exploiter.nse','http-frontpage-login.nse','http-git.nse','http-gitweb-projects-enum.nse','http-google-malware.nse','http-huawei-hg5xx-vuln.nse','http-iis-short-name-brute.nse','http-iis-webdav-vuln.nse','http-internal-ip-disclosure.nse','http-litespeed-sourcecode-download.nse','http-ls.nse','http-malware-host.nse','http-methods.nse','http-method-tamper.nse','http-open-proxy.nse','http-open-redirect.nse','http-passwd.nse','http-phpmyadmin-dir-traversal.nse','http-phpself-xss.nse','http-put','http-rfi-spider.nse','http-robots.txt.nse','http-shellshock.nse','http-slowloris-check.nse','http-sql-injection.nse','http-trace.nse','http-traceroute.nse','http-userdir-enum.nse','http-vmware-path-vuln.nse','http-vuln-misfortune-cookie.nse','http-vuln-wnr1000-creds.nse','http-webdav-scan.nse','http-xssed.nse','ip-https-discover.nse']
     #res=_scan(host,'-sV --script='+str(",".join(map(str,scripts)))+' --script-args="basepath=/cf/adminapi/, basepath=/cf/, http-aspnet-debug.path=/path,http-awstatstotals-exec.cmd=uname, http-awstatstotals-exec.uri=/awstats/index.php, http-cross-domain-policy.domain-lookup=true, http-put.url=\'/dav/nmap.php\',http-put.file=\'/root/Desktop/nmap.php\',http-put.url=\'/uploads/rootme.php\', http-put.file=\'/tmp/rootme.php\', uri=/cgi-bin/bin, cmd=ls" -F')
     #return (filter_data(res))
     data=[]
-    with alive_bar(len(scripts),force_tty=True,title="Progress") as bar:
+    #with alive_bar(len(scripts),force_tty=True,title="Scanning in Progress") as bar:
+    with alive_bar(len(scripts),force_tty=True,title="Scan in Progress",bar="halloween") as bar:
         for s in scripts:
             res=filter_data(_scan(host,'-sV --script='+s+' --script-args="basepath=/cf/adminapi/, basepath=/cf/, http-aspnet-debug.path=/path,http-awstatstotals-exec.cmd=uname, http-awstatstotals-exec.uri=/awstats/index.php, http-cross-domain-policy.domain-lookup=true, http-put.url=\'/dav/nmap.php\',http-put.file=\'/root/Desktop/nmap.php\',http-put.url=\'/uploads/rootme.php\', http-put.file=\'/tmp/rootme.php\', uri=/cgi-bin/bin, cmd=ls"'))
             if len(json.loads(res))>0:
                 data.append((res))
             bar()
-    return (data)
+    return json.dumps(data)
 
 def sql(host):
     scripts=['ms-sql-empty-password.nse','mysql-empty-password.nse','ms-sql-xp-cmdshell.nse','ms-sql-hasdbaccess.nse']
     #res=_scan(host,'-sV --script='+str(",".join(map(str,scripts)))+' --script-args="smtp-open-relay.domain=sakurity.com,smtp-open-relay.ip=127.0.0.1"')
     #return (filter_data(res))
     data=[]
-    with alive_bar(len(scripts),force_tty=True,title="Progress") as bar:
+    #with alive_bar(len(scripts),force_tty=True,title="Scanning in Progress") as bar:
+    with alive_bar(len(scripts),force_tty=True,title="Scan in Progress",bar="halloween") as bar:
         for s in scripts:
             res=filter_data(_scan(host,'-sV --script='+s+' --script-args="mssql.instance-all,mssql.username=sa,mssql.password=sa,ms-sql-xp-cmdshell.cmd=ipconfig"'))
             if len(json.loads(res))>0:
                 data.append((res))
             bar()
-    return (data)
+    return json.dumps(data)
 
 def smb(host):
     scripts=['smb2-security-mode.nse','smb-security-mode.nse','smb2-vuln-uptime.nse','smb-double-pulsar-backdoor.nse' ,'smb-os-discovery.nse','smb-protocols.nse','smb-vuln-conficker.nse','smb-vuln-regsvc-dos.nse','smb-vuln-webexec.nse','smb-vuln-webexec']
     data=[]
-    with alive_bar(len(scripts),force_tty=True,title="Progress") as bar:
+    #with alive_bar(len(scripts),force_tty=True,title="Scanning in Progress") as bar:
+    with alive_bar(len(scripts),force_tty=True,title="Scan in Progress",bar="halloween") as bar:
         for s in scripts:
             res=filter_data(_scan(host,'-sV -sU --script='+s+' --script-args="smbusername=admin,smbpass=passowrd,webexec_gui_command=cmd,webexec_command=net user test test /add"'))
             if len(json.loads(res))>0:
                 data.append((res))
             bar()
-    return (data)
+    return json.dumps(data)
 
 def rpc(host):
     scripts=['realvnc-auth-bypass.nse','rdp-vuln-ms12-020.nse']
     data=[]
-    with alive_bar(len(scripts),force_tty=True,title="Progress") as bar:
+    #with alive_bar(len(scripts),force_tty=True,title="Scanning in Progress") as bar:
+    with alive_bar(len(scripts),force_tty=True,title="Scan in Progress",bar="halloween") as bar:
         for s in scripts:
             res=filter_data(_scan(host,'-sV --script='+s))
             if len(json.loads(res))>0:
                 data.append((res))
             bar()
-    return (data)
+    return json.dumps(data)
 
 def nfs(host):
     scripts=['nfs-showmount']
     data=[]
-    with alive_bar(len(scripts),force_tty=True,title="Progress") as bar:
+    #with alive_bar(len(scripts),force_tty=True,title="Scanning in Progress") as bar:
+    with alive_bar(len(scripts),force_tty=True,title="Scan in Progress",bar="halloween") as bar:
         for s in scripts:
             res=filter_data(_scan(host,'-sV --script='+s))
             if len(json.loads(res))>0:
                 data.append((res))
             bar()
-    return (data)
+    return json.dumps(data)
 
 def ftp(host):
     scripts=['ftp-anon.nse','ftp-bounce.nse','ftp-libopie','ftp-proftpd-backdoor.nse','ftp-vsftpd-backdoor.nse']
     data=[]
-    with alive_bar(len(scripts),force_tty=True,title="Progress") as bar:
+    #with alive_bar(len(scripts),force_tty=True,title="Scanning in Progress") as bar:
+    with alive_bar(len(scripts),force_tty=True,title="Scan in Progress",bar="halloween") as bar:
         for s in scripts:
             res=filter_data(_scan(host,'-sV --script='+s+' --script-args="ftp-anon.maxlist=-1"'))
             if len(json.loads(res))>0:
                 data.append((res))
             bar()
-    return (data)
+    return json.dumps(data)
 
 def dns(host):
     scripts=['dns-cache-snoop.nse','dns-check-zone.nse','dns-recursion.nse']
     data=[]
-    with alive_bar(len(scripts),force_tty=True,title="Progress") as bar:
+    #with alive_bar(len(scripts),force_tty=True,title="Scanning in Progress") as bar:
+    with alive_bar(len(scripts),force_tty=True,title="Scan in Progress",bar="halloween") as bar:
         for s in scripts:
             res=filter_data(_scan(host,'-sV -sU --script='+s+' --script-args="dns-cache-snoop.mode=timed,dns-cache-snoop.domains={nshm.com,sakurity.com,primeinfoserv.com},dns-check-zone.domain=example.com"'))
             if len(json.loads(res))>0:
                 data.append((res))
             bar()
-    return (data)
+    return json.dumps(data)
 
 
 def scanner(host):
     scripts=['ssl-enum-ciphers','http-vuln-wnr1000-creds.nse','sslv2-drown.nse','smtp-strangeport.nse','ssl-heartbleed.nse','http-sql-injection.nse','ssl-cert.nse','http-passwd.nse','ms-sql-empty-password.nse','http-rfi-spider.nse','smb-security-mode.nse','smb-vuln-conficker.nse','ssl-cert-intaddr.nse','http-fileupload-exploiter.nse','http-traceroute.nse','tls-ticketbleed.nse','ssh-publickey-acceptance.nse','http-open-redirect.nse','ssl-ccs-injection.nse','http-iis-short-name-brute.nse','http-xssed.nse','sshv1.nse','http-internal-ip-disclosure.nse','http-avaya-ipoffice-users.nse','sslv2.nse','smb-vuln-webexec.nse','http-methods.nse','http-open-proxy.nse','http-shellshock.nse','http-ls.nse','http-vmware-path-vuln.nse','smtp-commands.nse','http-git.nse','mysql-empty-password.nse','http-awstatstotals-exec.nse','http-phpmyadmin-dir-traversal.nse','http-comments-displayer.nse','http-gitweb-projects-enum.nse','http-robots.txt.nse','http-vuln-misfortune-cookie.nse','http-apache-negotiation.nse','http-brute.nse','http-cross-domain-policy.nse','http-iis-webdav-vuln.nse','ssl-date.nse','smb-os-discovery.nse','http-trace.nse','smb2-security-mode.nse','ssl-dh-params.nse','http-put','ms-sql-hasdbaccess.nse','http-huawei-hg5xx-vuln.nse','smtp-open-relay.nse','smb-vuln-webexec','ssl-poodle.nse','http-cors','http-malware-host.nse','smb-vuln-regsvc-dos.nse','http-phpself-xss.nse','http-config-backup.nse','ip-https-discover.nse','http-webdav-scan.nse','ssh-hostkey.nse','http-method-tamper.nse','http-userdir-enum.nse','ssl-known-key.nse','http-dombased-xss.nse','smb2-vuln-uptime.nse','http-csrf.nse','http-frontpage-login.nse','http-google-malware.nse','http-litespeed-sourcecode-download.nse','ssh2-enum-algos.nse','http-slowloris-check.nse','smb-double-pulsar-backdoor.nse ','smb-protocols.nse','ssh-auth-methods.nse','http-cookie-flags','ms-sql-xp-cmdshell.nse','realvnc-auth-bypass.nse','rdp-vuln-ms12-020.nse','nfs-showmount','ftp-anon.nse','ftp-bounce.nse','ftp-libopie','ftp-proftpd-backdoor.nse','ftp-vsftpd-backdoor.nse','dns-cache-snoop.nse','dns-check-zone.nse','dns-recursion.nse']
-
     data=[]
-    with alive_bar(len(scripts),force_tty=True,title="Progress",bar="halloween") as bar:
+    #with alive_bar(len(scripts),force_tty=True,title="Scanning in Progress",bar="halloween") as bar:
+    with alive_bar(len(scripts),force_tty=True,title="Scan in Progress",bar="halloween") as bar:
         for s in scripts:
             if re.search('dns',s,re.IGNORECASE) or re.search('smb',s,re.IGNORECASE):
                 res=filter_data(_scan(host,'-sV --script='+s+' --script-args="userdb=users.lst, passdb=pass.lst, ssh-brute.timeout=4s,ssh_hostkey=all, ssh-run.cmd=ls , ssh-run.username=admin, ssh-run.password=password,ssh.usernames={\'root\', \'user\'}, publickeys={\'./id_rsa1.pub\', \'./id_rsa2.pub\'},ssh.privatekeys={\'./id_rsa1\', \'./id_rsa2\'},ssh.user=\'root\',smtp-open-relay.domain=sakurity.com,smtp-open-relay.ip=127.0.0.1,basepath=/cf/adminapi/, basepath=/cf/, http-aspnet-debug.path=/path,http-awstatstotals-exec.cmd=uname, http-awstatstotals-exec.uri=/awstats/index.php, http-cross-domain-policy.domain-lookup=true, http-put.url=\'/dav/nmap.php\',http-put.file=\'/root/Desktop/nmap.php\',http-put.url=\'/uploads/rootme.php\', http-put.file=\'/tmp/rootme.php\', uri=/cgi-bin/bin, cmd=ls,mssql.instance-all,mssql.username=sa,mssql.password=sa,ms-sql-xp-cmdshell.cmd=ipconfig,smbusername=admin,smbpass=passowrd,webexec_gui_command=cmd,webexec_command=net user test test /add,ftp-anon.maxlist=-1,dns-cache-snoop.mode=timed,dns-cache-snoop.domains={nshm.com,sakurity.com,primeinfoserv.com},dns-check-zone.domain=example.com"'))
             else:
                 res=filter_data(_scan(host,'-sV --script='+s+' --script-args="userdb=users.lst, passdb=pass.lst, ssh-brute.timeout=4s,ssh_hostkey=all, ssh-run.cmd=ls , ssh-run.username=admin, ssh-run.password=password,ssh.usernames={\'root\', \'user\'}, publickeys={\'./id_rsa1.pub\', \'./id_rsa2.pub\'},ssh.privatekeys={\'./id_rsa1\', \'./id_rsa2\'},ssh.user=\'root\',smtp-open-relay.domain=sakurity.com,smtp-open-relay.ip=127.0.0.1,basepath=/cf/adminapi/, basepath=/cf/, http-aspnet-debug.path=/path,http-awstatstotals-exec.cmd=uname, http-awstatstotals-exec.uri=/awstats/index.php, http-cross-domain-policy.domain-lookup=true, http-put.url=\'/dav/nmap.php\',http-put.file=\'/root/Desktop/nmap.php\',http-put.url=\'/uploads/rootme.php\', http-put.file=\'/tmp/rootme.php\', uri=/cgi-bin/bin, cmd=ls,mssql.instance-all,mssql.username=sa,mssql.password=sa,ms-sql-xp-cmdshell.cmd=ipconfig,smbusername=admin,smbpass=passowrd,webexec_gui_command=cmd,webexec_command=net user test test /add,ftp-anon.maxlist=-1,dns-cache-snoop.mode=timed,dns-cache-snoop.domains={nshm.com,sakurity.com,primeinfoserv.com},dns-check-zone.domain=example.com"'))
 
-
-
             if len(json.loads(res))>0:
                 data.append((res))
-                bar()
-    return (data)
+            bar()
+    return json.dumps(data)
 
+#scanner(sys.argv[1])

@@ -42,7 +42,6 @@ def _moddump(f):
     f.write(requests.get(git_url,timeout=2).content.decode())
     f.close()
 
-
 #:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 def bane_crawl(link):

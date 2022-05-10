@@ -11,12 +11,12 @@ def display(res):
       for r in res[i]['port']:
         key=list(r.keys())[0]
         info=str(r[key]).strip()
-        if '[TCP]' in str(key):
-          print(style.cyan(('\t'+str(key)+' '+str(info))))
-        if '[UDP]' in str(key):
-          print(style.magenta(('\t'+str(key)+' '+str(info))))
         if '[IP]' in str(key):
-          print(style.light_blue(('\t'+str(key)+' '+str(info))))
+          print('\t',style.black(style.on_yellow(" "+str(key)+" ")),'\t',style.yellow(str(info)))
+        if '[TCP]' in str(key):
+          print('\t',style.black(style.on_green(" "+str(key)+" ")),'\t',style.green(str(info)))
+        if '[UDP]' in str(key):
+          print('\t',style.black(style.on_magenta(" "+str(key)+" ")),'\t',style.magenta(str(info)))
 
 
 def _scan(ip,arg):
@@ -102,7 +102,7 @@ def IP(host):
   return (res)
 
 def serv(host):
-  res=_scan(host,'-sV -O')
+  res=_scan(host,'-sV -O -F')
   return (res)
 
 def INIT(host):
@@ -114,7 +114,7 @@ def echo(host):
   return (res)
 
 def ext(host):
-  res=_scan(host,'-sT -sU -O')
+  res=_scan(host,'-p 0-65535 -sT -sU -O')
   return (res)
 
 def all(host):

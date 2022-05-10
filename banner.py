@@ -1,6 +1,6 @@
 import sys,os,style
 
-def banner():
+def banner1():
     print(style.bold(style.green('____  __  ______  ___    ___  __  __  ______   _____   _____   _____  ______   ______       ')))
     print(style.bold(style.green('|  \ | |  | |   | | | __ | |  \ \/ /  | |__|| | | | |  | |__||  | |   | |   |  | |__||     ')))
     print(style.bold(style.green('| | \| |  | |-|   | |/  \| |   \  /   | |     | | | |  | |\ \   | |   | |-|    | |\ \  ')))
@@ -15,6 +15,36 @@ def menu1():
     x=int(input(style.bold(style.red('[>] Your Choice : '))))
     return x
 
+
+def banner():
+    x="""
+                                                                      ===
+           __                 ___                                     |||
+           ||                 \\  \\    ___                             |||
+    ___  ======____ ___    ___ \\  \\  /  /_____      ____   _____   ========= ______ ____                \n
+    | |\\  | ||====| \\ \\    | |  \\  \\/  /  | |_))  / |  | \\  | | ))   | | |   | |  |  | | ))         \n
+    | | \\ | ||==     \\ \\ /\\| |   \\  \\ /   | |     | |  | |  | |\\ \\   | | |   | |=    | |\\ \\     \n
+   _|_|  \\| ||====|   \\_/  \\_|   /\\  \\   _|_|     \\_|__|_/  |_| \\_\\  | | |   |_|__|  |_| \\_\\    \n
+          | ||                  /  \\  \\                              | | |                              \n
+          |_/                  /  / \\  \\                             | | |                              \n
+                              /__/   \\  \\                            | | |                              \n
+                                      \\__|                           | | |                               \n
+                                                                     \\ | /                               \n
+                                                                      \\|/                                \n
+    """
+    for i in range(len(x.split("\n"))):
+        if len(x.split("\n")[i])>0 and int(i)%5==0:
+            print(style.green(x.split("\n")[i]))
+        elif len(x.split("\n")[i])>0 and int(i)%3==0:
+            print(style.cyan(x.split("\n")[i]))
+        elif len(x.split("\n")[i])>0 and int(i)%2==0:
+            print(style.magenta(x.split("\n")[i]))
+        elif len(x.split("\n")[i])>0 and int(i)%1==0:
+          print(style.yellow(x.split("\n")[i]))
+
+
+
+'''
 def blackbox():
     print(style.bold(style.yellow(" _____ __    _____ _____ _____ _____ _____ ")))
     print(style.bold(style.yellow("| __  |  |  |  _  |     |  |  | __  |     | _ _")))
@@ -37,7 +67,7 @@ def sublister():
 
 
 def devploit():
-    print('''
+    print("""
                    ,                \033[96m
                    |'.             , ... Devploit \033[91m
                    |  '-._        / )
@@ -54,7 +84,7 @@ def devploit():
             '.   '._,  :   :|        \033[96m
               '.     ) :.__:|
                 \    \______/
-                 '._L/_H____]     ''')
+                 '._L/_H____]     """)
 
 def d_tect():
     print(style.bold(style.magenta("  ____   _____ _____ ____ _____ ")))
@@ -68,3 +98,4 @@ def analyze_host():
     print(style.bold(style.magenta("  ____  ___ __    ____          ")))
     print(style.bold(style.magenta(" | |_| ||\ | | |     ")))
     print(style.bold(style.magenta(" |_| | || \|              ")))
+'''
