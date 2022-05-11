@@ -1,0 +1,270 @@
+body{
+	font-family: Cambria Math;
+}
+
+td,th{
+	border: 1px solid black;
+	padding: 3px;
+	/*margin: 5px;*/
+}
+
+table{
+	border-collapse: collapse;
+	width: 75%;
+}
+
+th{
+	text-align: center;
+}
+
+h3{
+	/*margin-left: 100px;*/
+	text-align: center;
+	text-decoration: underline;
+}
+
+
+#summary td , #summary th {
+	border: 1px solid white;
+}
+#summary th{
+	white-space: nowrap;
+}
+#summary td#sl,#summary td#risk,#summary td#score{
+	text-align: center;
+}
+#summary td#name,#summary td#affected{
+	/*vertical-align: top;*/
+	text-align: left;
+}
+#summary table{
+	border: 1px solid black;
+}
+#summary tr#critical{
+	background: salmon;
+}
+
+#summary tr#high{
+	background: #ff9999;
+}
+
+#summary tr#medium{
+	background: #e8f48c;
+}
+
+#summary tr#low{
+	background: #d0f0c0;
+}
+
+#summary tr#informational{
+	background: #afeeee;
+}
+
+h4{
+	text-align: center;
+}
+
+#summary tr#critical td#risk,#summary tr#critical td#score{
+	background: maroon;
+	color: white;
+}
+
+#summary tr#high td#risk,#summary tr#high td#score{
+	background: red;
+	color: white;
+}
+
+#summary tr#medium td#risk,#summary tr#medium td#score{
+	background: goldenrod;
+	color: white;
+}
+
+#summary tr#low td#risk,#summary tr#low td#score{
+	background: yellowgreen;
+	color: white;
+}
+
+#summary tr#informational td#risk,#summary tr#informational td#score{
+	background: darkcyan;
+	color: white;
+}
+
+#summary th{
+	background: black;
+	color: white;
+}
+
+div#vuln_information table{
+	margin-left: 30px;
+	width: 75%;
+	margin-bottom: 30px;
+}
+
+#vuln_details td{
+	/*vertical-align: top;
+	padding: 5px;
+	color: black;
+	background: white;*/
+}
+#vuln_details{
+	color: black;
+}
+
+#vuln_details th{
+	width: 25%;
+}
+
+.critical #vuln_name{
+	color: white;
+	background: maroon;
+}
+
+.high #vuln_name{
+	color: white;
+	background: red;
+}
+
+.medium #vuln_name{
+	color: white;
+	background: goldenrod;
+}
+
+.low #vuln_name{
+	color: white;
+	background: yellowgreen;
+}
+
+.informational #vuln_name{
+	color: white;
+	background: darkcyan;
+}
+
+#vuln_details #vuln_name{
+	font-size: 22px;
+	text-align: center;
+	font-weight: bold;
+	word-spacing: 5px;
+	padding: 7px;
+}
+
+#vuln_details td#bullet{
+	background: white;
+	color: black;
+	font-weight: bold;
+	padding-left: 10px;
+}
+
+.high th{
+	background: red;
+	color: white;
+}
+
+.critical th{
+	background: maroon;
+	color: white;
+}
+
+.medium th{
+	background: goldenrod;
+	color: white;
+}
+
+.low th{
+	background: yellowgreen;
+	color: white;
+}
+
+#vuln_details td#info{
+	justify-content: left;
+	padding-left: 7px;
+}
+
+.informational th{
+	background: darkcyan;
+	color: white;
+}
+
+.critical tr#cvss #bullet, .critical tr#aff_host #bullet , .critical tr#aff_port #bullet , .critical tr#poc #bullet , .critical tr#classi #bullet , .critical tr#ref_link #bullet {
+        color: maroon;
+}
+
+.high tr#cvss #bullet, .high tr#aff_host #bullet , .high tr#aff_port #bullet , .high tr#poc #bullet , .high tr#classi #bullet , .high tr#ref_link #bullet {
+	color: red;
+}
+
+.medium tr#cvss #bullet, .medium tr#aff_host #bullet , .medium tr#aff_port #bullet , .medium tr#poc #bullet , .medium tr#classi #bullet , .medium tr#ref_link #bullet {
+        color: goldenrod;
+}
+
+.low tr#cvss #bullet, .low tr#aff_host #bullet , .low tr#aff_port #bullet , .low tr#poc #bullet , .low tr#classi #bullet , .low tr#ref_link #bullet {
+        color: yellowgreen;
+}
+
+.informational tr#cvss #bullet, .informational tr#aff_host #bullet , .informational tr#aff_port #bullet , .informational tr#poc #bullet , .informational tr#classi #bullet , .informational tr#ref_link #bullet {
+        color: darkcyan;
+}
+
+td#desc , td#imp ,  td#sol {
+	vertical-align: top;
+	justify-content: left;
+	width: 25%;
+}
+
+
+tr#vuln_name{
+	word-break: break-all;
+}
+table#host_details {
+	width: 75%;
+	border: none;
+}
+
+#host_details td {
+	border: none;
+	vertical-align: top;
+	padding-left: 18px;
+}
+
+#host_details td table th{
+	border: 1px solid white;
+}
+
+#host_details td table , #host_details td table td{
+	border: 1px solid black;
+}
+
+table#open_ports , table #host_info{
+	width: 100%;
+	padding-left: 10px;
+}
+
+#host_info th{
+	text-align: left;
+	padding-left:10px;
+	background: black;
+	color: white;
+	vertical-align: middle;
+}
+
+#open_ports th{
+	background: black;
+	color: white;
+}
+
+#open_ports #port{
+	white-space: nowrap;
+}
+
+#open_ports td, #host_info td{
+	background: whitesmoke;
+	color: black;
+}
+
+#vuln_name td{
+	text-align: left;
+	padding-left: 10px;
+	margin-right: 0px;
+	padding-right: 0px;
+	white-space: unset;
+	word-break: break-all;
+}
