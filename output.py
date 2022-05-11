@@ -314,6 +314,9 @@ def create_HTML(data):
         host_html=host_html+str('\t</div>\n')
     html_data=summary_html+'\n\n'+host_html
 
+    css=request.get('https://raw.githubusercontent.com/17ack312/data/main/style.css').content.decode()
+    html_data='<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>REPORT</title><style>'+css+'</style></head><body>\n'+html_data+'</body></html>'
+
     return str(html_data)
 
 def create_XL(data):
