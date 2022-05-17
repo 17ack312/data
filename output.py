@@ -1,9 +1,10 @@
 import json
 import os
+import re
 import sys
 import datetime,time
-
-vulnerabilities=[]
+from collections import Counter
+from operator import itemgetter
 
 def set_data(v_name,score,strng,risk,desc,imp,sol,ref,link,port,script,serv):
     vuln={}
@@ -96,229 +97,312 @@ def ssti(script):
     return head,json.dumps(result)
 
 
-def create_summary(data):
-    v_names=[];temp=[]
-    for d in data:
-        hosts={};vulns=[]
-        #print(d)
-        if len(json.loads(data[d]['vuln']['xss']))>0:
-            script=""
-            for i in json.loads(data[d]['vuln']['xss']):
-                key=list(i.keys())[0]
-                script=script+'\n'+key
-                #print(i[key])
-            t_name,result=xss(script)
-            v_names.append(t_name)
-            vulnerabilities.append(json.loads(result))
-            vulns.append(json.loads(result))
-            list(data[d]['vuln']['common']).append(result)
-
-
-        if len(json.loads(data[d]['vuln']['sql'])) > 0:
-            script = ""
-            for i in json.loads(data[d]['vuln']['sql']):
-                key = list(i.keys())[0]
-                script = script + '\n' + key
-                #print(i[key])
-            t_name, result = sqli(script)
-            v_names.append(t_name)
-            vulnerabilities.append(json.loads(result))
-            vulns.append(json.loads(result))
-            list(data[d]['vuln']['common']).append(result)
-
-        if len(json.loads(data[d]['vuln']['rce'])) > 0:
-            script = ""
-            for i in json.loads(data[d]['vuln']['rce']):
-                key = list(i.keys())[0]
-                script = script + '\n' + key
-                #print(i[key])
-            t_name, result = rce(script)
-            v_names.append(t_name)
-            vulnerabilities.append(json.loads(result))
-            vulns.append(json.loads(result))
-            list(data[d]['vuln']['common']).append(result)
-
-        if len(json.loads(data[d]['vuln']['ssti'])) > 0:
-            script = ""
-            for i in json.loads(data[d]['vuln']['ssti']):
-                key = list(i.keys())[0]
-                script = script + '\n' + key
-                #print(i[key])
-            t_name, result = ssti(script)
-            v_names.append(t_name)
-            vulnerabilities.append(json.loads(result))
-            vulns.append(json.loads(result))
-            list(data[d]['vuln']['common']).append(result)
-
-        for v in data[d]['vuln']['common']:
-            v=json.loads(v)
-            for v1 in list(v.keys()):
-                x={}
-                x[v1]=v[v1]
-                v_names.append(v1)
-                #print(json.dumps(x))
-                vulnerabilities.append((x))
-                vulns.append(x)
-        hosts['host']=d
-        hosts['vulns']=vulns
-        temp.append(hosts)
-
-
-    v_names = list(set(v_names))
-
-    return data,temp
-
 def create_HTML(data):
-    html_data=''
-    data1,data2=create_summary(data)
-    vulns=[];v_names=[]
+    vulnerabilities=[];v_name=[]
+    html_data='<center><h2>HOST WISE ANALYSIS</h2></center>'
 
-    for v in vulnerabilities:
-        x={}
-        key=(list(v.keys())[0])
-        v_names.append(key)
-        x['key']=key
-        x['name'] = v[key]['name']
-        x['score']=v[key]['score']
-        x['risk']=v[key]['risk']
-        x['string']=v[key]['string']
-        x['desc']=v[key]['desc']
-        x['imp']=v[key]['imp']
-        x['sol']=v[key]['sol']
-        x['ref']=v[key]['ref']
-        x['link']=v[key]['link']
-        if x not in vulns:
-            vulns.append(x)
+    h_count=0
+    m_chart=''
+    for d in data:
+        h_count+=1
+        #x={}
+        #print(d)
+        vuln=[]
+        if len(json.loads(data[d]['vuln']['sql']))>0:
+            script=[];x={}
+            for i in list(json.loads(data[d]['vuln']['sql'])):
+                #print(list(i.keys())[0])
+                script.append(list(i.keys())[0])
+            head,res=(sqli(list(set(script))))
+            res=json.loads(res)[head]
+            vuln.append(res)
+            vulnerabilities.append(res)
+            x['name']=res['name']
+            x['host']=d
+            v_name.append(x)
 
-    vulns = (sorted(vulns, key=lambda item: item['score'], reverse=True))
-    v_names=list(set(v_names))
 
-    summary_html="\t<h3>VULNERABILITY SUMMARY</h3>\n"
-    summary_html=summary_html+str('\t<div align="center" id="summary" class="summary">\n')
-    summary_html=summary_html+str('\t\t<table id="summary">\n')
-    summary_html=summary_html+str('\t\t\t<tr id="heading"><th id="sl">SL</th><th id="risk">RISK</th><th id="name">VULNERABILITY NAME</th><th id="score">CVSS SCORE</th><th id="affected">AFFECTED HOSTS</th><th id="refs">CLASSIFICATION</th></tr>\n')
-    count=1
-    for v in vulns:
-        hosts=[]
-        #print(v)
-        for d in data2:
-            for i in (d['vulns']):
-                #print(v['key'],list(i.keys())[0])
-                if v['key']==list(i.keys())[0]:
-                    hosts.append(d['host'])
+        if len(json.loads(data[d]['vuln']['rce']))>0:
+            script=[];x={}
+            for i in (json.loads(data[d]['vuln']['rce'])):
+                #print(list(i.keys())[0])
+                script.append(list(i.keys())[0])
+            head,res=(rce(list(set(script))))
+            res=json.loads(res)[head]
+            vuln.append(res)
+            vulnerabilities.append(res)
+            x['name']=res['name']
+            x['host']=d
+            v_name.append(x)
 
-        hosts=list(set(hosts))
-        #print(v['key'],hosts)
-        summary_html=summary_html+str('\t\t\t<tr id="'+str(v['risk']).lower().strip()+'"><td id="sl">'+str(count)+'</td><td id="risk">'+str(v['risk']).upper()+'</td><td id="name"><a href="#'+str(v['name']).lower().strip().replace(' ','_')+'">'+str(v['name']).upper().strip()+'</a></td><td id="score">'+str(v['score'])+'</td><td id="affected">'+str("<br>".join(map(str,hosts)))+'</td><td>'+str(v['ref']).replace(',','<br>')+'</td></tr>\n')
-        count+=1
-    summary_html=summary_html+str('\t\t</table>')
-    summary_html=summary_html+str('\t\t</div>')
+        if len(json.loads(data[d]['vuln']['ssti']))>0:
+            script=[];x={}
+            for i in (json.loads(data[d]['vuln']['ssti'])):
+                #print(list(i.keys())[0])
+                script.append(list(i.keys())[0])
+            head, res = (ssti(list(set(script))))
+            res = json.loads(res)[head]
+            vuln.append(res)
+            vulnerabilities.append(res)
+            x['name']=res['name']
+            x['host']=d
+            v_name.append(x)
 
-    host_html="\t<h3>HOST WISE INFORMATION</h3>\n"
+        if len(json.loads(data[d]['vuln']['xss']))>0:
+            script=[];x={}
+            for i in (json.loads(data[d]['vuln']['xss'])):
+                #print(list(i.keys())[0])
+                script.append(list(i.keys())[0])
+            head, res = (ssti(list(set(script))))
+            res = json.loads(res)[head]
+            vuln.append(res)
+            vulnerabilities.append(res)
+            x['name']=res['name']
+            x['host']=d
+            v_name.append(x)
 
-    hc=0
-    for d1 in data:
-        hc+=1
-        #print("============================================================================================")
-        #print(data[d1].keys())
+        for v in (data[d]['vuln']['common']):
+            v=json.loads(v)
+            for i in (v.keys()):
+                y={};x={}
+                if v[i] not in vuln:
+                    vuln.append(v[i])
+                #print(v[i])
+                y['name']=v[i]['name']
+                y['risk']=v[i]['risk']
+                y['score']=v[i]['score']
+                y['ref']=v[i]['ref']
+                y['host']=d
+                #vulnerabilities.append(x)
+                vulnerabilities.append(v[i])
+                x['name'] = v[i]['name']
+                x['host'] = d
+                v_name.append(x)
 
-        start=str(data[d1]['start'])
-        end=str(data[d1]['end'])
+
+        vuln=[dict(y) for y in set(tuple(x.items()) for x in vuln)]
+        vuln = (sorted(vuln, key=lambda item: item['score'], reverse=True))
+
+        d=data[d]
+        start=str(d['start'])
+        end=str(d['end'])
         s=datetime.datetime(int(start.split(' ')[0].split('-')[0]),int(start.split(' ')[0].split('-')[1]),int(start.split(' ')[0].split('-')[2]),int(start.split(' ')[-1].split('.')[0].split(':')[0]),int(start.split(' ')[-1].split('.')[0].split(':')[1]),int(start.split(' ')[-1].split('.')[0].split(':')[2]))
         e=datetime.datetime(int(end.split(' ')[0].split('-')[0]),int(end.split(' ')[0].split('-')[1]),int(end.split(' ')[0].split('-')[2]),int(end.split(' ')[-1].split('.')[0].split(':')[0]),int(end.split(' ')[-1].split('.')[0].split(':')[1]),int(end.split(' ')[-1].split('.')[0].split(':')[2]))
+        #print(d.keys())
+        html_data = html_data + ('\t<div class="host_summary" align="center"><table><tr><td id="info">\n')
+
+        html_data=html_data+('\t\t<div align="center" id="host_info">\n')
+        html_data=html_data+('\t\t<h4>HOST DETAILS</h4>\n')
+        html_data=html_data+('\t\t<table id="host_summary">\n')
+        html_data=html_data+('\t\t\t<tr id="host"><th>HOST</th><td id="'+str(d['host']).lower().replace('.','_')+'">'+str(d['host'])+'</td></tr>\n')
+        html_data=html_data+('\t\t\t<tr id="ip"><th>IP ADDRESS</th><td>'+str(d['ip'])+'</td></tr>\n')
+        if (len(d['names']))>0:
+            html_data=html_data+('\t\t\t<tr id="hostname"><th>HOSTNAME</th><td>'+str('<br>'.join((map(str,list(d['names'])))))+'</td>\n')
+        if (len(str(d['mac'])))>0:
+            html_data=html_data+('\t\t\t<tr id="mac"><th>MAC ADDRESS</th><td>'+str(d['mac'])+'</td></tr>\n')
+        if (len(str(d['os'])))>0:
+            html_data=html_data+('\t\t\t<tr id="os"><th>OPERATING SYSTEM</th><td>'+str(d['os'])+'</td></tr>\n')
+        html_data=html_data+('\t\t\t<tr id="uptime"><th>SYSTEM UPTIME</th><td>'+str(d['uptime'])+'</td></tr>\n')
+        html_data=html_data+('\t\t\t<tr id="duration"><th>SCAN DURATION</th><td>' + str(e-s) + ' hrs</td></tr>\n')
+        html_data=html_data+('\t\t\t<tr id="link"><th>AVAILABLE LINKS</th><td><ul>\n')
+        if len(d['url'])>0:
+            for u in list(set(list(d['url']))):
+                html_data=html_data+('\t\t\t\t<li><a target="_blank" href="'+str(u)+'">'+str(u)+'</a></li>\n')
+        html_data=html_data+('\t\t\t</ul></td></tr>\n')
+        html_data=html_data+('\t\t</table></div></td><td id="ports">\n')
+
+        html_data = html_data + ('\t\t<div align="center" id="host_port_info">\n')
+        html_data = html_data + ('\t\t<h4>OPEN PORT DETAILS</h4>\n')
+        html_data = html_data + ('\t\t<table id="port_summary">\n')
+        html_data = html_data + ('\t\t\t<tr><th>PORT</th><th>INFORMATION</th></tr>\n')
+        for i in list(d['ports']):
+            port = (list(i.keys())[0])
+            info = i[port]
+            html_data = html_data + (
+                        '\t\t\t<tr><td id="port">' + str(port) + '</td><td id="info">' + str(info) + '</td></tr>\n')
+        html_data = html_data + ('\t\t</table></div></td></tr></table>\n')
 
 
-        host_html=host_html+str('\t<h3 id="'+str(data[d1]['host']).replace('.','_')+'"><span id="sl">'+str(hc)+'.  </span><span id="host"><u>'+str(data[d1]['host'])+'</u></span></h3>\n')
+        summary={}
+        for i in Counter(map(itemgetter('risk'), vuln)).most_common():
+            summary[i[0]]=str(i[1])
 
-        host_html=host_html+str('\t<div id="host_information" align="center"><table id="host_details"><tr><td>\n')
-        host_html=host_html+str('\t<div >\n')
-        host_html = host_html + str('\t\t<h4>HOST INFORMATION</h4>\n')
-        host_html=host_html+str('\t\t<table id="host_info" class="host_info">\n')
-        #host_html=host_html+str('\t\t\t<tr id="host"><td id="bullet">Host</td><td id="info">'+str(data[d1]['host'])+'</td></tr>\n')
-        host_html=host_html+str('\t\t\t<tr id="ip"><th id="bullet">IP Address</th><td id="info">'+str(data[d1]['ip'])+'</td></tr>\n')
-        if len(str(data[d1]['names']))>0:
-            host_html=host_html+str('\t\t\t<tr id="mac"><th id="bullet">Hostnames</th><td id="info">'+"<br>".join(data[d1]['names'])+'</td></tr>\n')
-        if len(str(data[d1]['mac']))>0:
-            host_html=host_html+str('\t\t\t<tr id="mac"><th id="bullet">MAC Address</th><td id="info">'+str(data[d1]['mac'])+'</td></tr>\n')
-        if len(str(data[d1]['os']))>0:
-            host_html=host_html+str('\t\t\t<tr id="os"><th id="bullet">Operating System</th><td id="info">'+str(data[d1]['os'])+'</td></tr>\n')
+        m_chart_data='''CanvasJS.addColorSet("mycolor",["#8b0000","#ff0000","#daa520","#b2ec5d","#00ced1"]);
+        var chart = new CanvasJS.Chart("chartContainer'''+str(h_count)+'''",
+        {colorSet: "mycolor",title:{text: "Vulnerability Summary"}, data: [{indexLabelPlacement: "outside",type: "doughnut",showInLegend: true,toolTipContent: "{y} - #percent %",yValueFormatString: "count ,#",legendText: "{indexLabel}",
+                dataPoints: [
+                '''
+        try:
+            m_chart_data=m_chart_data+str('{  y: '+summary['Critical']+', indexLabel: "Critical" },')
+        except:
+            m_chart_data=m_chart_data+str('{  y: 0 , indexLabel: "Critical"}, ')
+        try:
+            m_chart_data = m_chart_data + str('{  y: ' + summary['High'] + ', indexLabel: "High" },')
+        except:
+            m_chart_data = m_chart_data + str('{  y: 0 , indexLabel: "High"}, ')
+        try:
+            m_chart_data = m_chart_data + str('{  y: ' + summary['Medium'] + ', indexLabel: "Medium" },')
+        except:
+            m_chart_data = m_chart_data + str('{  y: 0 , indexLabel: "Medium"}, ')
+        try:
+            m_chart_data = m_chart_data + str('{  y: ' + summary['Low'] + ', indexLabel: "Low" },')
+        except:
+            m_chart_data = m_chart_data + str('{  y: 0 , indexLabel: "Low"}, ')
+        try:
+            m_chart_data = m_chart_data + str('{  y: ' + summary['Informational'] + ', indexLabel: "Informational" },')
+        except:
+            m_chart_data = m_chart_data + str('{  y: 0 , indexLabel: "Informational"}, ')
+        m_chart_data=m_chart_data+''']}]});chart.render();'''
 
-        host_html=host_html+str('\t\t\t<tr id="started"><th id="bullet">Scan Started at</th><td id="info">'+str(data[d1]['start'])+'</td></tr>\n')
-        host_html=host_html+str('\t\t\t<tr id="started"><th id="bullet">Scan Finished at</th><td id="info">'+str(data[d1]['start'])+'</td></tr>\n')
-        host_html=host_html+str('\t\t\t<tr id="duration"><th id="bullet">Scan Duration</th><td id="info">'+str(e-s)+' Hrs</td></tr>\t')
 
-        host_html=host_html+str('\t\t\t<tr id="urls"><th id="bullet">Found URLs</th><td id="info"><ul>')
-        for u in list(set(list(data[d1]['url']))):
-            host_html=host_html+str('<li><a href="'+str(u)+'" target="_blank">'+str(u)+'</a></li>')#+'<br>'
-        host_html=host_html+str('</ul></tr>\n')
-        host_html=host_html+str('\t\t</table>\n')
-        host_html = host_html + str('\t</div>\n')
+        m_chart=m_chart+m_chart_data
 
-        host_html=host_html+str('\t</td><td>\n')
 
-        host_html = host_html + str('\t<div id="open_port_information">\n')
 
-        host_html = host_html + str('\t\t<h4>OPEN PORT INFORMATION</h4>\n')
+        html_data=html_data+('\t</div>\n')
 
-        host_html=host_html+str('\t\t<table id="open_ports">\n')
-        host_html=host_html+str('\t\t\t<tr><th id="port">PORT</th><th id="port_info">INFORMATION</th></tr>\n')
-        for p in list(data[d1]['ports']):
-            key=list(p.keys())[0]
-            host_html=host_html+str('\t\t\t<tr><td id="port">'+str(key)+'</td><td id="port_info">'+str(p[key])+'</td></tr>\n')
-        host_html=host_html+str('\t\t</table>\n')
-        host_html = host_html + str('\t</div>\n')
-        host_html=host_html+str('\t</td></tr></table></div>\n')
-        vuls=[]
-        for d2 in data2:
-            if str(d2['host'])==str(data[d1]['host']):
-                for v in (d2['vulns']):
-                    key=list(v.keys())[0]
-                    vuls.append(json.dumps(v[key]))
-        vuls=list(set(vuls))
-        temp=[]
-        for v in vuls:
-            v=json.loads(v)
-            temp.append(v)
-        vuls=temp
-        vuls = (sorted(vuls, key=lambda item: item['score'], reverse=True))
+        html_data=html_data+('\t\t<div align="center" id="host_vuln_info"><table><tr><td id="chart">\n')
 
-        host_html=host_html+str('\n<div id="clear" style="clear:both;"></div>\n')
-        host_html = host_html + str('\t<div align="center" id="vuln_information" >\n')
-        host_html = host_html + str('\t\t<h4>VULNERABILITY INFORMATION</h4>\n')
-        count=0
-        for v in vuls:
-            count+=1
-            #host_html=host_html+str(v.keys())
-            host_html=host_html+str('\t\t<table id="vuln_details" class="'+str(v['risk']).lower()+'">\n')
-            host_html=host_html+str('\t\t\t<tr id="vuln_name"><td id="'+str(v['name']).lower().strip().replace(' ','_')+'" colspan=3><span id="bullet">'+str(count)+') </span><span id="info">'+str(v['name']).upper()+'</span></td></tr>\n')
-#            host_html=host_html+str('\t\t\t<tr id="vuln_name"><td id="'+str(v['name']).lower().strip().replace(' ','_')+'" colspan=3><span id="bullet">'+str(count)+'. ['+str(v['risk']).upper()+'] </span><span id="info">'+str(v['name']).upper()+'</span></td></tr>\n')
-            if str(v['risk']).lower().strip()=='informational':
-                host_html=host_html+str('\t\t\t<tr id="cvss"><td colspan=1 id="bullet">CVSS INFO</td><td colspan=2 id="info">N </td></tr>\n')
-            else:
-                host_html=host_html+str('\t\t\t<tr id="cvss"><td colspan=1 id="bullet">CVSS</td><td colspan=2 id="info">'+str(v['score'])+' '+str(v['string'])+'</td></tr>\n')
-            host_html = host_html + str('\t\t\t<tr id="aff_host"><td colspan=1 id="bullet">AFFECTED HOST</td><td colspan=2 id="info">' + str((data[d1]['host'])) + ' [' + str((data[d1]['ip'])) + '] </td></tr>\n')
-            if len(str(v['port']))>0:
-                host_html = host_html + str('\t\t\t<tr id="aff_port"><td colspan=1 id="bullet">AFFECTED PORT</td><td colspan=2 id="info">' + str(v['port']) + ' ' + str(v['service']) + '</td></tr>\n')
-            host_html=host_html+str('\t\t\t<tr id="head_desc"><th id="desc">DESCRIPTION</th><th id="imp">IMPACT</th><th id="sol">SOLUTION</th></tr>\n')
-            host_html=host_html+str('\t\t\t<tr id="info_desc"><td id="desc">'+str(v['desc'])+'</td><td id="imp">'+str(v['imp'])+'</td><td id="sol">'+str(v['sol'])+'</td></tr>\n')
-            host_html=host_html+str('\t\t\t<tr id="poc"><td colspan=1 id="bullet">PROOF OF CONCEPT</td><td colspan=2 id="info">'+str(v['output'])+'</td></tr>\n')
-            if len(str(v['ref'])) > 0:
-                host_html=host_html+str('\t\t\t<tr id="classi"><td colspan=1 id="bullet">CLASSIFICATION</td><td colspan=2 id="info">'+str(v['ref'])+'</td></tr>\n')
-            if len(str(v['link'])) > 0:
-                host_html=host_html+str('\t\t\t<tr id="ref_link"><td colspan=1 id="bullet">MORE INFORMATION</td><td colspan=2 id="info"><ul>')
-                for u in str(v['link']).split(','):
-                    host_html=host_html+str('<li><a href="'+str(u)+'" target="_blank">'+str(u)+'</a></li>')
-                host_html=host_html+str('</ul></td></tr>\n')
+        html_data = html_data + ('\t\t\t<div class="vuln_chart" id="chartContainer' + str(h_count) + '"></div></td><td id="v_info">\n')
 
-            host_html=host_html+str('\t\t</table>\n')
-        host_html=host_html+str('\t</div>\n')
-    html_data=summary_html+'\n\n'+host_html
+        html_data=html_data+('\t\t\t<div><h4>VULNERABILITY SUMMARY</h4>\n')
+        html_data=html_data+('\t\t\t<table id="host_vuln_summary">\n')
+        v_sl=1
+        #html_data=html_data+('\t\t\t\t<tr><th>SL</th><th>SERVERITY</th><th>VULNERABILITY NAME</th><th>SCORE</th><th>AFFECTED PORT</th><th>CLASSIFICATION</th></tr>\n')
+        html_data=html_data+('\t\t\t\t<tr><th>SL</th><th>SERVERITY</th><th>VULNERABILITY NAME</th><th>SCORE</th><th>AFFECTED PORT</th></tr>\n')
+        for v in vuln:
+            #print(v_sl,v['risk'],v['name'],v['score'],v['port'])
+            html_data=html_data+('\t\t\t\t<tr class="'+str(v['risk']).lower()+'">')
+            html_data=html_data+('<td id="sl">'+str(v_sl)+'</td>')
+            html_data=html_data+('<td id="risk">'+str(v['risk'])+'</td>')
+            html_data=html_data+('<td id="name"><a href="#'+str(v['name']).lower().strip().replace(' ','_')+'">'+str(v['name'])+'</a></td>')
+            html_data=html_data+('<td id="score">'+str(v['score'])+'</td>')
+            html_data=html_data+('<td id="port">'+str(v['port'])+'</td>')
+            ref=[]
+            for r in str(v['ref']).split(','):
+                if r.strip().upper().startswith('CVE'):
+                    ref.append('<a target="_blank" href="https://nvd.nist.gov/vuln/detail/'+str(r).strip().upper()+'">'+str(r)+'</a>')
+                if r.strip().upper().startswith('CWE'):
+                    ref.append('<a target="_blank" href="https://cwe.mitre.org/data/definitions/'+str(r).strip().split(":")[-1].strip()+'.html">'+str(r)+'</a>')
+                if r.strip().upper().startswith('CERT'):
+                    ref.append('<a target="_blank" href="https://www.kb.cert.org/vuls/id/'+str(r).strip().split(":")[-1].strip()+'.html">'+str(r)+'</a>')
+            #html_data=html_data+('<td id="ref">'+str("<br>".join(map(str,ref)))+'</td>')
+            html_data=html_data+('</tr>\n')
 
-    css=request.get('https://raw.githubusercontent.com/17ack312/data/main/style.css').content.decode()
-    html_data='<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>REPORT</title><style>'+css+'</style></head><body>\n'+html_data+'</body></html>'
+            v_sl+=1
+        html_data=html_data+('\t\t</table></div></td></tr></table></div>\n')
 
-    return str(html_data)
 
-def create_XL(data):
-	pass
 
+    #print(html_data)
+    temp_data=''
+
+    vulnerabilities = [dict(y) for y in set(tuple(x.items()) for x in vulnerabilities)]
+    vulnerabilities = (sorted(vulnerabilities, key=lambda item: item['score'], reverse=True))
+    v_name=[dict(y) for y in set(tuple(x.items()) for x in v_name)]
+
+    temp_data = temp_data + ('\t\t\t\n')
+
+    temp_data=temp_data+('\t\t\t\t<div align="center" id="total_vuln"><h2>TOTAL VULNERABILITIES FOUND</h2><div class="vuln_chart" id="mainChart"></div><table id="total_vuln">')
+    temp_data=temp_data+('\t\t\t\t<tr><th>SL</th><th>SERVERITY</th><th>VULNERABILITY NAME</th><th>AFFECTED SYSTEM</th><th>SCORE</th><th>CLASSIFICATION</th></tr>\n')
+
+    v_sl=0
+    for v in vulnerabilities:
+        host=[]
+        for v2 in v_name:
+            if str(v['name'])==str(v2['name']):
+                host.append(v2['host'])
+        host=list(set(host))
+        v_sl+=1
+        temp_data=temp_data+('\t\t\t\t<tr class="' + str(v['risk']).lower() + '">')
+        temp_data=temp_data+ ('<td id="sl">' + str(v_sl) + '</td>')
+        temp_data=temp_data +('<td id="risk">' + str(v['risk']) + '</td>')
+        temp_data=temp_data +(
+                    '<td id="name"><a href="#' + str(v['name']).lower().strip().replace(' ', '_') + '">' + str(
+                v['name']) + '</a></td>')
+        x=[]
+        for h in host:
+            x.append('<a href="#'+str(h).lower().replace('.','_')+'">'+h+'</a>')
+        temp_data=temp_data+('<td id="system">' + str("<br>".join(map(str, x))) + '</td>')
+        temp_data=temp_data +('<td id="score">' + str(v['score']) + '</td>')
+        ref = []
+        for r in str(v['ref']).split(','):
+            if r.strip().upper().startswith('CVE'):
+                ref.append(
+                    '<a target="_blank" href="https://nvd.nist.gov/vuln/detail/' + str(r).strip().upper() + '">' + str(
+                        r) + '</a>')
+            if r.strip().upper().startswith('CWE'):
+                ref.append(
+                    '<a target="_blank" href="https://cwe.mitre.org/data/definitions/' + str(r).strip().split(":")[
+                        -1].strip() + '.html">' + str(r) + '</a>')
+            if r.strip().upper().startswith('CERT'):
+                ref.append('<a target="_blank" href="https://www.kb.cert.org/vuls/id/' + str(r).strip().split(":")[
+                    -1].strip() + '.html">' + str(r) + '</a>')
+        temp_data=temp_data+('<td id="ref">'+str("<br>".join(map(str,ref)))+'</td>')
+        temp_data=temp_data +('</tr>\n')
+    temp_data=temp_data+('</table></div>\n')
+
+
+    summary = {}
+    for i in Counter(map(itemgetter('risk'), vulnerabilities)).most_common():
+        summary[i[0]] = str(i[1])
+        #print(i)
+
+    m_chart_data = '''CanvasJS.addColorSet("mycolor",["#8b0000","#ff0000","#daa520","#b2ec5d","#00ced1"]);
+    var chart = new CanvasJS.Chart("mainChart",
+    {colorSet: "mycolor",title:{text: ""}, data: [{indexLabelPlacement: "outside",type: "pie",showInLegend: true,toolTipContent: "{y} - #percent %",yValueFormatString: "count ,#",legendText: "{indexLabel}",
+            dataPoints: [
+            '''
+    try:
+        m_chart_data = m_chart_data + str('{  y: ' + summary['Critical'] + ', indexLabel: "Critical" },')
+    except:
+        m_chart_data = m_chart_data + str('{  y: 0 , indexLabel: "Critical"}, ')
+    try:
+        m_chart_data = m_chart_data + str('{  y: ' + summary['High'] + ', indexLabel: "High" },')
+    except:
+        m_chart_data = m_chart_data + str('{  y: 0 , indexLabel: "High"}, ')
+    try:
+        m_chart_data = m_chart_data + str('{  y: ' + summary['Medium'] + ', indexLabel: "Medium" },')
+    except:
+        m_chart_data = m_chart_data + str('{  y: 0 , indexLabel: "Medium"}, ')
+    try:
+        m_chart_data = m_chart_data + str('{  y: ' + summary['Low'] + ', indexLabel: "Low" },')
+    except:
+        m_chart_data = m_chart_data + str('{  y: 0 , indexLabel: "Low"}, ')
+    try:
+        m_chart_data = m_chart_data + str('{  y: ' + summary['Informational'] + ', indexLabel: "Informational" },')
+    except:
+        m_chart_data = m_chart_data + str('{  y: 0 , indexLabel: "Informational"}, ')
+    m_chart_data = m_chart_data + ''']}]});chart.render();'''
+    m_chart = m_chart + m_chart_data
+
+    vuln_data='<h2>VULNERABILITY DETAILS</h2>'
+    vuln_data=vuln_data+('\t\t<div id="vuln_summ" align="center">\n')
+    for v in vulnerabilities:
+        #print(v.keys())
+
+        vuln_data=vuln_data+('\t\t\t<table class="'+str(v['risk']).lower()+'">\n')
+
+        vuln_data=vuln_data+('\t\t\t\t<tr id="name"><td colspan=3 ><span id="'+str(v['name']).lower().strip().replace(' ','_')+'">'+str(v['name'])+'</span>\n')
+        vuln_data=vuln_data+('\t\t\t\t<br><span id="point">Category : </span><span id="risk">'+str(v['risk'])+'</span></td></tr>\n')
+        vuln_data=vuln_data+('\t\t\t\t<tr id="cvss"><td colspan=3><span id="score">'+str(v['score'])+'</span><span id="string">'+str(v['string'])+'</span></td></tr>\n')
+        vuln_data=vuln_data+('\t\t\t\t<tr><th>Description</th><th>Impact</th><th>Solution</th></tr>\n')
+        vuln_data=vuln_data+('\t\t\t\t<tr id="details_info">\n')
+        vuln_data=vuln_data+('<td td="desc">'+str(v['desc']).replace('\n','<br>').replace(';','<br>')+'</td>')
+        vuln_data=vuln_data+('<td td="imp">'+str(v['imp']).replace('\n','<br>').replace(';','<br>')+'</td>')
+        vuln_data=vuln_data+('<td td="sol">'+str(v['sol']).replace('\n','<br>').replace(';','<br>')+'</td>')
+        vuln_data=vuln_data+('</tr>\n')
+        vuln_data=vuln_data+('\t\t\t\t<tr id="poc"><td id="point">Output</td><td id="info" colspan=2>'+str(v['output'])+'</td></tr>\n')
+
+        link=[]
+        for l in str(v['link']).split(','):
+            link.append('<a target="_blank" href="'+l+'">'+l+'</a>')
+
+        vuln_data=vuln_data+('\t\t\t\t<tr id="ref"><td id="point">References</td><td colspan=2 id="details">'+str("<br>".join(link))+'</td></tr>\n')
+        vuln_data=vuln_data+('\t\t\t</table>\n')
+
+    vuln_data=vuln_data+('\t\t</div>\n')
+
+
+    html_data='<html><head><meta http-equiv="refresh" content="60"/><link rel="stylesheet" type="text/css" href="newx.css"><script type="text/javascript">function demo() {'+str(m_chart)+'}</script><script type="text/javascript" src="https://canvasjs.com/assets/script/canvasjs.min.js"></script></head><body onload="demo()">'+temp_data+html_data+vuln_data+'</body></html>'
+    return (html_data)
